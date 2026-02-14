@@ -1,0 +1,5 @@
+gguf
+numpy
+torch
+safetensors
+PyYAML

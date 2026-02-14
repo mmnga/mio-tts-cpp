@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>MioTTS-Cpp WASM</title>
+  <style>
+    :root {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #1a2233;
+      background: #f4f7fb;
+    }
+    body {
+      margin: 0;
+      padding: 20px;
+    }
+    .app {
+      max-width: 980px;
+      margin: 0 auto;
+      background: #fff;
+      border: 1px solid #dce3ee;
+      border-radius: 12px;
+      padding: 18px;
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: 24px;
+    }
+    h2 {
+      margin: 18px 0 8px;
+      font-size: 18px;
+    }
+    p {
+      margin: 0 0 14px;
+      color: #56627a;
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    input, select, textarea, button {
+      font: inherit;
+    }
+    textarea, input[type="text"], input[type="number"], select {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid #c8d1df;
+      border-radius: 8px;
+      padding: 10px;
+      background: #fff;
+      color: #1a2233;
+    }
+    input[type="file"] {
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid #c8d1df;
+      border-radius: 8px;
+      padding: 8px;
+      background: #fff;
+      color: #1a2233;
+    }
+    textarea {
+      min-height: 140px;
+      resize: vertical;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    #btn-generate {
+      background: #1f66ff;
+      color: #fff;
+    }
+    #btn-stop {
+      background: #e9eef9;
+      color: #1e2d47;
+    }
+    #btn-record-start, #btn-add-file, #btn-load-wavlm {
+      background: #0d8a57;
+      color: #fff;
+    }
+    #btn-record-stop, #btn-delete-reference {
+      background: #f3a31b;
+      color: #1e2d47;
+    }
+    #status, #metrics, #ref-status {
+      margin-top: 10px;
+      font-size: 13px;
+      white-space: pre-wrap;
+    }
+    #status, #ref-status {
+      background: #f3f6fc;
+      border: 1px solid #d8e1ef;
+      border-radius: 8px;
+      padding: 10px;
+    }
+    audio {
+      width: 100%;
+      margin-top: 12px;
+    }
+    @media (max-width: 800px) {
+      .row {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <h1>MioTTS-Cpp WASM</h1>
+    <p>ブラウザ内のみで音声生成（text -> codes -> wav）。外部API経由も可。</p>
+
+    <div class="row" style="grid-template-columns: 2fr 1fr; margin-top: 0;">
+      <div>
+        <label for="embedding">reference</label>
+        <select id="embedding"></select>
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:10px; grid-template-columns: 1fr;">
+      <label style="display:flex; align-items:center; gap:8px; margin:0;">
+        <input id="use-external-api" type="checkbox" style="width:auto;">
+        外部APIでcodes生成（ON時）
+      </label>
+    </div>
+
+    <div class="row" id="api-settings" style="grid-template-columns: 2fr 1fr 1fr;">
+      <div>
+        <label for="api-base">Base URL</label>
+        <input id="api-base" type="text" value="http://localhost:8080/v1">
+      </div>
+      <div>
+        <label for="api-key">api-key</label>
+        <input id="api-key" type="text" value="dummy">
+      </div>
+      <div>
+        <label for="api-model">model (optional)</label>
+        <input id="api-model" type="text" placeholder="leave empty for server default">
+      </div>
+    </div>
+
+    <label for="text" style="margin-top:10px;">text</label>
+    <textarea id="text">こんにちわ、今日はいい天気ですね。</textarea>
+
+    <div class="row">
+      <div>
+        <label for="n-threads">n_threads</label>
+        <input id="n-threads" type="number" min="1" step="1" value="2">
+      </div>
+      <div>
+        <label for="ctx-size">ctx-size</label>
+        <input id="ctx-size" type="number" min="256" step="1" value="700">
+      </div>
+      <div>
+        <label for="n-predict">n_predict</label>
+        <input id="n-predict" type="number" min="1" max="300" step="1" value="200">
+      </div>
+      <div>
+        <label for="top-k">top_k</label>
+        <input id="top-k" type="number" min="1" step="1" value="50">
+      </div>
+      <div>
+        <label for="top-p">top_p</label>
+        <input id="top-p" type="number" min="0.01" max="1.0" step="0.01" value="1.0">
+      </div>
+      <div>
+        <label for="temp">temp</label>
+        <input id="temp" type="number" min="0.01" max="3.0" step="0.01" value="0.8">
+      </div>
+    </div>
+
+    <div class="buttons">
+      <button id="btn-generate">Generate</button>
+      <button id="btn-stop">Stop</button>
+    </div>
+
+    <div id="status">init...</div>
+    <div id="metrics"></div>
+    <audio id="player" controls></audio>
+
+    <h2>Create Reference From Audio</h2>
+    <div class="buttons">
+      <button id="btn-load-wavlm">Load WavLM</button>
+      <button id="btn-delete-reference">Delete Selected Ref</button>
+    </div>
+    <div class="buttons">
+      <button id="btn-record-start">Start Recording</button>
+      <button id="btn-record-stop" disabled>Stop & Add</button>
+    </div>
+    <div class="row" style="grid-template-columns: 2fr 1fr;">
+      <div>
+        <label for="ref-file">audio file</label>
+        <input id="ref-file" type="file" accept="audio/*">
+      </div>
+      <div style="display:flex; align-items:end;">
+        <button id="btn-add-file" style="width:100%;">Add From File</button>
+      </div>
+    </div>
+    <div id="ref-status">ready</div>
+  </main>
+
+  <script type="module" src="./miottscpp.js?v=20260215-7"></script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+.build-wasm/
+miottscpp_core.js
+miottscpp_core.wasm
+miottscpp_core.data
+public/model/*.gguf
+public/embeddings/*.emb.gguf
+public/embeddings/index.json
+!public/model/.gitkeep
+!public/embeddings/.gitkeep
+!public/embeddings/index.json.example

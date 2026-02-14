@@ -1,0 +1,40 @@
+# Build outputs
+/build/
+/build-*/
+
+# CMake generated files (in-source safety)
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+compile_commands.json
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Editor/OS metadata
+.vscode/
+.idea/
+.DS_Store
+*.xcuserstate
+**/xcuserdata/
+
+# Runtime artifacts
+*.log
+core
+core.*
+
+
+.tmp/
+*.gguf
+
+.venv
+
+!models/en_female.emb.gguf
+!models/en_male.emb.gguf
+!models/jp_female.emb.gguf
+!models/jp_male.emb.gguf
+.cache
+out.wav
+tests/result/*
