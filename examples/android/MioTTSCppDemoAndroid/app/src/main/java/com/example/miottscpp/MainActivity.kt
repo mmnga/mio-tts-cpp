@@ -2,6 +2,8 @@ package com.example.miottscpp
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.media.AudioAttributes
+import android.media.AudioManager
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
@@ -623,7 +625,17 @@ class MainActivity : AppCompatActivity() {
 
         return runCatching {
             mediaPlayer?.release()
+
+            val am = getSystemService(AUDIO_SERVICE) as AudioManager
+            am.mode = AudioManager.MODE_NORMAL
+
             mediaPlayer = MediaPlayer().apply {
+                setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_MEDIA)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .build()
+                )
                 setDataSource(path)
                 prepare()
                 start()
@@ -795,7 +807,7 @@ class MainActivity : AppCompatActivity() {
         btnGenerate.isEnabled = canTap && !isRecording && references.isNotEmpty()
         btnPlayAudio.isEnabled = canTap && latestOutputPath != null
         btnToggleRecording.isEnabled = canTap || isRecording
-        btnToggleRecording.text = if (isRecording) "録音停止して話者追加" else "録音して話者追加"
+        btnToggleRecording.text = if (isRecording) "■ STOP" else "● REC"
     }
 
     private fun setStatus(message: String) {

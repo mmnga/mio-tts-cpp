@@ -720,11 +720,24 @@ struct ContentView: View {
                             Task { await vm.startReferenceRecording() }
                         }
                     } label: {
-                        Text(vm.isRecordingReference ? "録音停止して追加" : "録音して話者追加")
-                            .frame(maxWidth: .infinity)
+                        HStack(spacing: 6) {
+                            if vm.isRecordingReference {
+                                Image(systemName: "stop.fill")
+                                    .font(.caption)
+                                Text("STOP")
+                            } else {
+                                Circle()
+                                    .fill(.white)
+                                    .frame(width: 10, height: 10)
+                                Text("REC")
+                            }
+                        }
+                        .fontWeight(.bold)
+                        .frame(maxWidth: .infinity)
                     }
                     .disabled(vm.isEngineLoading || vm.isBusy)
                     .buttonStyle(.borderedProminent)
+                    .tint(.red)
                     .controlSize(.large)
 
                     Button {
