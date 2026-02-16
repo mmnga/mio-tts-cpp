@@ -32,15 +32,16 @@ For English instructions, see `README.md`.
 ## クイックスタート (macOS / Linux)
 
 ```bash
-# サブモジュールごとクローン
+# クローン
 git clone --recurse-submodules https://github.com/mmnga/mio-tts-cpp.git
 cd mio-tts-cpp
 
-# モデル取得
-./models_download.sh
+# セットアップ (モデル取得 + ビルド を一括実行)
+./setup.sh
 
-# ビルド
-./build.sh
+# 個別に実行する場合:
+#   ./models_download.sh   # モデルのみ取得
+#   ./build.sh             # ビルドのみ
 
 # 音声合成
 ./build/llama-tts-mio \

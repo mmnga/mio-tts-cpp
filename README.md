@@ -30,15 +30,16 @@ Optional:
 ## Quickstart (macOS / Linux)
 
 ```bash
-# Clone with submodules
+# Clone
 git clone --recurse-submodules https://github.com/mmnga/mio-tts-cpp.git
 cd mio-tts-cpp
 
-# Download models
-./models_download.sh
+# Setup (download models + build in one step)
+./setup.sh
 
-# Build
-./build.sh
+# Or run individually:
+#   ./models_download.sh   # download models only
+#   ./build.sh             # build only
 
 # Synthesize speech
 ./build/llama-tts-mio \
