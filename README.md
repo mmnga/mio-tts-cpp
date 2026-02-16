@@ -40,22 +40,12 @@ cd mio-tts-cpp
 # Build
 ./build.sh
 
-# Run server
-./build/mio-tts-server \
+# Synthesize speech
+./build/llama-tts-mio \
   -m models/MioTTS-0.1B-Q8_0.gguf \
   -mv models/miocodec.gguf \
-  --tts-wavlm-model models/wavlm_base_plus_2l_f32.gguf \
-  --reference-file-json '[
-    {"key":"en_female","path":"models/en_female.emb.gguf"},
-    {"key":"en_male","path":"models/en_male.emb.gguf"},
-    {"key":"jp_female","path":"models/jp_female.emb.gguf"},
-    {"key":"jp_male","path":"models/jp_male.emb.gguf"}
-  ]'
-
-# Generate speech
-curl -X POST http://127.0.0.1:18089/mio/tts \
-  -H "Content-Type: application/json" \
-  -d '{"text":"Hello, how are you today?","reference_key":"en_female"}' \
+  -emb models/en_female.emb.gguf \
+  -p "Hello, how are you today?" \
   -o out.wav
 ```
 
@@ -153,6 +143,21 @@ JOBS=8 ./build.sh                 # Parallel jobs
 | `-emb, --tts-mio-default-embedding-in FNAME` | Default speaker embedding GGUF | |
 | `--llm-api-url URL` | External LLM API endpoint | |
 
+### iOS (SwiftUI)
+
+```bash
+./examples/swiftui/build.sh
+open examples/swiftui/MioTTSCppDemo.xcodeproj
+```
+
+See `examples/swiftui/README.md` for details.
+
+### Android
+
+Open `examples/android/MioTTSCppDemoAndroid` in Android Studio.
+
+See `examples/android/README.md` for details.
+
 ### Server
 
 ```bash
@@ -186,6 +191,14 @@ JOBS=8 ./build.sh                 # Parallel jobs
 | `DELETE` | `/mio/references/:key` | Remove a cached reference |
 | `GET`  | `/health` | Server health / status |
 | `GET`  | `/` | Built-in web UI |
+
+### WASM (Browser)
+
+```bash
+cd examples/wasm && ./build.sh
+python3 -m http.server 8787 --bind 127.0.0.1
+# Open http://127.0.0.1:8787/
+```
 
 ## Architecture
 
@@ -224,37 +237,6 @@ uv venv && uv pip install -r requirements.txt
 | Speaker `.pt`/`.npz` | `uv run python scripts/convert_preset_embedding_to_gguf.py input.pt -o out.emb.gguf` | Embedding GGUF |
 
 See `scripts/README.md` for details.
-
-## Sample Apps
-
-### iOS (SwiftUI)
-
-```bash
-./examples/swiftui/build.sh
-open examples/swiftui/MioTTSCppDemo.xcodeproj
-```
-
-### Android
-
-Open `examples/android/MioTTSCppDemoAndroid` in Android Studio.
-
-### WASM (Browser)
-
-```bash
-cd examples/wasm && ./build.sh
-python3 -m http.server 8787 --bind 127.0.0.1
-# Open http://127.0.0.1:8787/
-```
-
-## Which One To Use
-
-| Component | Best for |
-|-----------|----------|
-| `mio-tts-server` | Multi-client HTTP access, shared inference process |
-| `llama-tts-mio` (CLI) | Batch processing, scripting, model/param testing |
-| iOS sample | On-device iPhone/iPad app (recording, speaker selection, playback) |
-| Android sample | On-device Android app |
-| WASM sample | Browser-only TTS, demos, static hosting |
 
 ## Notes
 

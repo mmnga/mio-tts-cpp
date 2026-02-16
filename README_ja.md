@@ -42,22 +42,12 @@ cd mio-tts-cpp
 # ビルド
 ./build.sh
 
-# サーバー起動
-./build/mio-tts-server \
+# 音声合成
+./build/llama-tts-mio \
   -m models/MioTTS-0.1B-Q8_0.gguf \
   -mv models/miocodec.gguf \
-  --tts-wavlm-model models/wavlm_base_plus_2l_f32.gguf \
-  --reference-file-json '[
-    {"key":"en_female","path":"models/en_female.emb.gguf"},
-    {"key":"en_male","path":"models/en_male.emb.gguf"},
-    {"key":"jp_female","path":"models/jp_female.emb.gguf"},
-    {"key":"jp_male","path":"models/jp_male.emb.gguf"}
-  ]'
-
-# 音声生成
-curl -X POST http://127.0.0.1:18089/mio/tts \
-  -H "Content-Type: application/json" \
-  -d '{"text":"こんにちは、今日はいい天気ですね。","reference_key":"jp_female"}' \
+  -emb models/jp_female.emb.gguf \
+  -p "こんにちは、今日はいい天気ですね。" \
   -o out.wav
 ```
 
@@ -155,6 +145,21 @@ JOBS=8 ./build.sh                 # 並列ジョブ数
 | `-emb, --tts-mio-default-embedding-in FNAME` | デフォルト話者埋め込み GGUF | |
 | `--llm-api-url URL` | 外部 LLM API エンドポイント | |
 
+### iOS (SwiftUI)
+
+```bash
+./examples/swiftui/build.sh
+open examples/swiftui/MioTTSCppDemo.xcodeproj
+```
+
+詳細は `examples/swiftui/README.md` を参照してください。
+
+### Android
+
+Android Studio で `examples/android/MioTTSCppDemoAndroid` を開いてください。
+
+詳細は `examples/android/README.md` を参照してください。
+
 ### サーバー
 
 ```bash
@@ -188,6 +193,14 @@ JOBS=8 ./build.sh                 # 並列ジョブ数
 | `DELETE` | `/mio/references/:key` | キャッシュ済みリファレンスの削除 |
 | `GET`  | `/health` | サーバーステータス |
 | `GET`  | `/` | 組み込み Web UI |
+
+### WASM (ブラウザ)
+
+```bash
+cd examples/wasm && ./build.sh
+python3 -m http.server 8787 --bind 127.0.0.1
+# http://127.0.0.1:8787/ を開く
+```
 
 ## アーキテクチャ
 
@@ -226,37 +239,6 @@ uv venv && uv pip install -r requirements.txt
 | 話者 `.pt`/`.npz` | `uv run python scripts/convert_preset_embedding_to_gguf.py input.pt -o out.emb.gguf` | 埋め込み GGUF |
 
 詳細は `scripts/README.md` を参照してください。
-
-## サンプルアプリ
-
-### iOS (SwiftUI)
-
-```bash
-./examples/swiftui/build.sh
-open examples/swiftui/MioTTSCppDemo.xcodeproj
-```
-
-### Android
-
-Android Studio で `examples/android/MioTTSCppDemoAndroid` を開いてください。
-
-### WASM (ブラウザ)
-
-```bash
-cd examples/wasm && ./build.sh
-python3 -m http.server 8787 --bind 127.0.0.1
-# http://127.0.0.1:8787/ を開く
-```
-
-## 使い分け
-
-| コンポーネント | 用途 |
-|----------------|------|
-| `mio-tts-server` | 複数クライアントからの HTTP アクセス、推論プロセスの集約 |
-| `llama-tts-mio` (CLI) | バッチ処理、スクリプト、モデル/パラメータ検証 |
-| iOS サンプル | iPhone/iPad 上のオンデバイスアプリ (録音・話者選択・再生) |
-| Android サンプル | Android 上のオンデバイスアプリ |
-| WASM サンプル | ブラウザのみの TTS、デモ、静的ホスティング配布 |
 
 ## 補足
 
