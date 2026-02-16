@@ -430,6 +430,12 @@ final class MioTTSViewModel: NSObject, ObservableObject, AVAudioPlayerDelegate, 
 
     private func play(_ wavURL: URL) throws {
         player?.stop()
+
+        let session = AVAudioSession.sharedInstance()
+        try session.setCategory(.playback, mode: .default, options: [])
+        try session.setPreferredSampleRate(48000)
+        try session.setActive(true)
+
         let player = try AVAudioPlayer(contentsOf: wavURL)
         player.delegate = self
         player.prepareToPlay()
