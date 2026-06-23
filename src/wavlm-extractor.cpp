@@ -609,8 +609,8 @@ bool wavlm_extractor::extract_ssl_features(
     const char * backend_name = backend_gpu ? ggml_backend_name(backend_gpu) : nullptr;
 
     const bool flash_attn_requested = flash_attn_type != LLAMA_FLASH_ATTN_TYPE_DISABLED;
-    const bool backend_is_cuda = backend_name != nullptr && std::strncmp(backend_name, "CUDA", 4) == 0;
-    // WavLM gated relative bias uses per-head masks; CUDA flash-attn currently only
+    const bool backend_is_cuda = backend_name != nullptr && (std::strncmp(backend_name, "CUDA", 4) == 0 || std::strncmp(backend_name, "ROCm", 4) == 0);
+    // WavLM gated relative bias uses per-head masks; CUDA/ROCm flash-attn currently only
     // supports masks with ne[2] == 1 and aborts otherwise.
     const bool use_flash_attn = flash_attn_requested && !(backend_is_cuda && hp_.n_heads > 1);
     if (flash_attn_requested && !use_flash_attn) {
